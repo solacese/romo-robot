@@ -110,23 +110,24 @@ function TopicSubscriber(solaceModule, topicName, publishTopicName) {
       console.log(message.getBinaryAttachment());
       let jsonString = message.getBinaryAttachment();
       let source = "romo";
-      let imagekey = "romo-some-image.jpg";
 
       let topicLevels = message
         .getDestination()
         .getName()
         .split("/");
 
-      if (topicLevels.length > 4) {
-        source = topicLevels[3];
-        subscriber.log('Received message from "' + source);
+      // if (topicLevels.length > 4) {
+      //   source = topicLevels[3];
+      //   subscriber.log('Received message from "' + source);
 
-        imagekey = topicLevels[2] + "/" + topicLevels[3] + "-" + topicLevels[4];
-      }
+      //   imagekey = topicLevels[2] + "/" + topicLevels[3] + "-" + topicLevels[4];
+      // }
 
       //subscriber.log("Message payload " + jsonString);
 
       let jsonData = JSON.parse(jsonString);
+
+      let imagekey = jsonData["image"];
 
       if (jsonData.FaceDetails != undefined) {
         if (jsonData.FaceDetails.length >= 1) {
@@ -226,8 +227,24 @@ function TopicSubscriber(solaceModule, topicName, publishTopicName) {
             break;
         }
 
-        var messageText = '[{ "expression" : "' + romoExpression + '", "emotion" : "' + romoEmotion + '", "highestEmotion" : "' + highestEmotion.toLowerCase() + '", "higestConfidence" : ' + highestConfidence + ', "source": "' + source + '", "Sharpness" : ' + highestSharpness + ', "Brightness" : ' + highestBrightness + ', "image" : "' + imagekey  + '" }]';
-
+        var messageText =
+          '[{ "expression" : "' +
+          romoExpression +
+          '", "emotion" : "' +
+          romoEmotion +
+          '", "highestEmotion" : "' +
+          highestEmotion.toLowerCase() +
+          '", "higestConfidence" : ' +
+          highestConfidence +
+          ', "source": "' +
+          source +
+          '", "Sharpness" : ' +
+          highestSharpness +
+          ', "Brightness" : ' +
+          highestBrightness +
+          ', "image" : "' +
+          imagekey +
+          '" }]';
 
         let message = solace.SolclientFactory.createMessage();
 
