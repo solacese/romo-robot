@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Solace - Romo Command Center</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge;"/>
+        <meta charset="utf-8"/>
+
+        <!-- Import Bootstrap.js for Layout -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous" />
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+
+        <!-- Load Solace Web Messaging API for JavaScript -->
+        <script src="../../lib/solclient-debug.js"></script>
+
+        <!-- Load the PublishSubscribe Topic Subscriber tutorial -->
+        <script src="../resources/js/TopicSubscriber.js"></script>
+
+        <script>
+
+            $(document).ready(function(){
+
+                var subscriber = null;
+
+                // Initialize factory with the most recent API defaults
+                var factoryProps = new solace.SolclientFactoryProperties();
+                factoryProps.profile = solace.SolclientFactoryProfiles.version10;
+                solace.SolclientFactory.init(factoryProps);
+
+                // enable logging to JavaScript console at WARN level
+                // NOTICE: works only with "solclientjs-debug.js"
+                solace.SolclientFactory.setLogLevel(solace.LogLevel.WARN);
+
+                // create the subscriber, specifying name of the subscription topic
+                subscriber = new TopicSubscriber('T/MQTTRomo/*/command/character', 'T/MQTTRomo/all/command/drive');
+
+                // assign buttons to the subscriber functions 
+                document.getElementById("connect").addEventListener("click", subscriber.connect);
+                document.getElementById("disconnect").addEventListener("click", subscriber.disconnect);
+                document.getElementById("subscribe").addEventListener("click",subscriber.subscribe);
+                document.getElementById("unsubscribe").addEventListener("click", subscriber.unsubscribe);
+
+                document.getElementById("romoKeyUp").addEventListener("click", () => subscriber.publish('MOVE_FORWARD'));
+                document.getElementById("romoKeyDown").addEventListener("click", () => subscriber.publish('MOVE_BACKWARD'));
+                document.getElementById("romoKeyLeft").addEventListener("click", () => subscriber.publish('ROTATE_UP'));
+                document.getElementById("romoKeyRight").addEventListener("click", () => subscriber.publish('ROTATE_DOWN'));
+                
+
+                $('#headingThree').keydown(function(event){
+                    console.debug('Key ID '+event.which+' pressed DOWN');
+
+                    switch(event.which){
+                        case 37:
+                            $('#romoKeyLeft').addClass("btn-dark");
+                            break;
+                        case 38:
+                            $('#romoKeyUp').addClass("btn-dark");
+                            break;
+                        case 39:
+                            $('#romoKeyRight').addClass("btn-dark");
+                            break;
+                        case 40:
+                            $('#romoKeyDown').addClass("btn-dark");
+                            break;
+                        default: break;
+                    }
+                })
+
+                $('#headingThree').keyup(function(event){
+                    console.debug('Key ID '+event.which+' RELEASED');
+
+                    switch(event.which){
+                        case 37:
+                            $('#romoKeyLeft').removeClass("btn-dark");
+                            subscriber.publish('MOVE_BACKWARD');
+                            break;
+                        case 38:
+                            $('#romoKeyUp').removeClass("btn-dark");
+                            subscriber.publish('ROTATE_UP');
+                            break;
+                        case 39:
+                            $('#romoKeyRight').removeClass("btn-dark");
+                            console.log("RIGHT!")
+                            subscriber.publish('MOVE_FORWARD');
+                            break;
+                        case 40:
+                            $('#romoKeyDown').removeClass("btn-dark");
+                            subscriber.publish('ROTATE_DOWN');
+                            break;
+                        default: break;
+                    }
+                })
+
+            });
+        </script>
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <img src="../resources/images/Solace_Logo_Green_360x100.png" class="rounded pb-3" width="10%" height="10%" alt="Solace Logo">
+        </div>
+
+        <div class="accordion" id="accordion">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseOne">
+                        Connection Details
+                    </button>
+                </div>
+                <div id="collapseOne" class="collapse" data-parent="#accordion">
+                    <div class="card-body">
+                        <div class="container pt-3">
+                            <form>
+                                <div class="form-group">
+                                    <label for="hosturl">Host url</label>
+                                    <input id="hosturl" class="form-control" type="text" placeholder="<protocol://host[:port]>">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="message-vpn">Message-vpn</label>
+                                    <input id="message-vpn"  class="form-control"  type="text" placeholder="Message VPN">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="username">Username</label>
+                                    <input id="username" class="form-control"  type="text" placeholder="username">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="password">Password</label>
+                                    <input id="password"  class="form-control" type="password" placeholder="password">
+                                </div>
+                            </form>
+
+                            <div class="btn-toolbar" role="toolbar">
+                                <div class="btn-group mr-2" role="group"> 
+                                    <button type="button" class="btn btn-success" id="connect">Connect</button>
+                                    <button type="button" class="btn btn-danger" id="disconnect">Disconnect</button>
+                                </div>
+                                <div class="btn-group mr-2" role="group">
+                                    <button type="button" class="btn btn-success" id="subscribe">Subscribe</button>
+                                    <button type="button" class="btn btn-danger" id="unsubscribe">Unsubscribe</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+
+        <div class="card">
+            <div class="card-header" id="headingTwo">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseTwo">
+                    Emotion Scoreboard
+                </button>
+            </div>
+            <div id="collapseTwo" class="collapse show" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header text-center font-weight-bold">Happy</div>
+                                    <img src="https://s3.us-east-2.amazonaws.com/jdiamond-reinvent/robot-ui/samples/happy-afro-beautiful-blur-1139245.jpg" class="img-fluid img-thumbnail" alt="Happy"/>
+
+                                    <div class="progress" style="height:20px;">
+                                        <div id="happyProgress" class="progress-bar bg-success" role="progressbar" style="width:0%">
+                                            0
+                                        </div>
+                                    </div>
+                                    <img id="lasthappy" src="https://s3.us-east-2.amazonaws.com/jdiamond-reinvent/robot-ui/images/ask-blackboard-356079.jpg"   class="img-fluid img-thumbnail" alt="blackboard"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header text-center font-weight-bold">Sad</div>
+                                    <img src="https://s3.us-east-2.amazonaws.com/jdiamond-reinvent/robot-ui/samples/sad-adult-alone-black-and-white-568021.jpg" class="img-fluid img-thumbnail" alt="Sad"/>
+                                    <div class="progress" style="height:20px;">
+                                        <div id="sadProgress" class="progress-bar bg-info" role="progressbar" style="width:0%">0</div>
+                                    </div>
+                                    <img id="lastsad" src="https://s3.us-east-2.amazonaws.com/jdiamond-reinvent/robot-ui/images/ask-blackboard-356079.jpg"   class="img-fluid img-thumbnail" alt="blackboard"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header text-center font-weight-bold">Angry</div>
+                                    <img src="https://s3.us-east-2.amazonaws.com/jdiamond-reinvent/robot-ui/samples/angry-close-up-face-1608113.jpg"
+                                         class="img-fluid img-thumbnail" alt="Angry"/>
+                                    <div class="progress" style="height:20px;">
+                                        <div id="angryProgress" class="progress-bar bg-danger" role="progressbar" style="width:0%">0</div>
+                                    </div>
+                                    <img id="lastangry" src="https://s3.us-east-2.amazonaws.com/jdiamond-reinvent/robot-ui/images/ask-blackboard-356079.jpg"   class="img-fluid img-thumbnail" alt="blackboard"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header text-center font-weight-bold">Disgusted</div>
+                                    <img src="https://s3.us-east-2.amazonaws.com/jdiamond-reinvent/robot-ui/samples/disgust-adult-angry-face-53549.jpg"
+                                         class="img-fluid img-thumbnail" alt="Disgusted"/>
+                                    <div class="progress" style="height:20px;">
+                                        <div id="disgustedProgress" class="progress-bar bg-warning" role="progressbar" style="width:0%">
+                                            0
+                                        </div>
+                                    </div>
+                                    <img id="lastdisgusted" src="https://s3.us-east-2.amazonaws.com/jdiamond-reinvent/robot-ui/images/ask-blackboard-356079.jpg"   class="img-fluid img-thumbnail" alt="blackboard"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header text-center font-weight-bold">Surprised</div>
+                                    <img src="https://s3.us-east-2.amazonaws.com/jdiamond-reinvent/robot-ui/samples/surprised-adult-background-beard-716658.jpg"
+                                         class="img-fluid img-thumbnail"  alt="Surprised"/>
+                                    <div class="progress" style="height:20px;">
+                                        <div id="surprisedProgress" class="progress-bar bg-dark" role="progressbar" style="width:0%">
+                                            0
+                                        </div>
+                                    </div>
+                                    <img id="lastsurprised" src="https://s3.us-east-2.amazonaws.com/jdiamond-reinvent/robot-ui/images/ask-blackboard-356079.jpg" class="img-fluid img-thumbnail" alt="blackboard"/>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header text-center font-weight-bold">Calm</div>
+                                    <img src="https://s3.us-east-2.amazonaws.com/jdiamond-reinvent/robot-ui/samples/calm-black-and-white-blur-child-415229.jpg"
+                                         class="img-fluid img-thumbnail" alt="Calm"/>
+                                    <div class="progress" style="height:20px;">
+                                        <div id="calmProgress" class="progress-bar bg-secondary" role="progressbar" style="width:0%">
+                                            0
+                                        </div>
+                                    </div>
+                                    <img id="lastcalm" src="https://s3.us-east-2.amazonaws.com/jdiamond-reinvent/robot-ui/images/ask-blackboard-356079.jpg"   class="img-fluid img-thumbnail" alt="blackboard"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingThree">
+                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree">
+                    Romo Controls
+                </button>
+            </div>
+
+            <div id="collapseThree" class="collapse" data-parent="#accordion">
+                <div class="btn-group-vertical mt-3 mb-3 ml-5" role="group">
+                    <button type="button" class="btn btn-info mb-1" id="romoKeyUp">Up</button>
+
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-info mr-1" id="romoKeyLeft">Left</button>
+                        <button type="button" class="btn btn-info" id="romoKeyDown">Down</button>
+                        <button type="button" class="btn btn-info ml-1" id="romoKeyRight">Right</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--End Accordion-->
+        </div>
+
+    <!-- Optional JavaScript for Bootstrap-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+    </body>
+
+</html>

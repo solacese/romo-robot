@@ -1,0 +1,35 @@
+service: RomoRobotDemo
+
+provider:
+  name: aws
+  runtime: python3.7
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource: "*"
+    - Effect: "Allow"
+      Action:
+        - "rekognition:*"
+      Resource: "*"   
+
+functions:
+  rekognition:
+    handler: lambda_function.main
+    events:
+      - s3:
+          bucket: romo-robot-demo
+          event: s3:ObjectCreated:*
+          rules:
+            - suffix: .jpg
+          existing: true
+
+plugins:
+  - serverless-python-requirements
+custom:
+  pythonRequirements:
+    dockerizePip: true
+# need this plugin to build the requirements found in our requirements.txt file
+# it builds the requirements, deploys them in the .requirements dir of the lambda deployment package,
+# and then symlinks the contents of .requirements/ into your top-level directory
+# you can overwrite defaults here

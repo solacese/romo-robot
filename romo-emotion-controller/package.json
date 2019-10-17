@@ -1,0 +1,25 @@
+{
+  "name": "romo-emotion-controller",
+  "version": "1.0.0",
+  "description": "Microservice based on the Solace Node.js samples that translates the output of a Rekognition emotion API service to the emotions and expressions supported by the Romo-SDK",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src -d dist --presets @babel/preset-env --source-maps",
+    "dev": "npx babel-node --presets @babel/preset-env src/App.js",
+    "start": "node dist/App.js"
+  },
+  "author": "Andrew Roberts",
+  "license": "ISC",
+  "dependencies": {
+    "core-js": "^3.1.4",
+    "dotenv": "^8.0.0",
+    "regenerator-runtime": "^0.13.3",
+    "solclientjs": "^10.3.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.0",
+    "@babel/preset-env": "^7.5.4"
+  }
+}

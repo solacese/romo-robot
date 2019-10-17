@@ -1,0 +1,6 @@
+image-to-s3:
+  build: .
+  ports:
+    - "3001:3001"
+  volumes:
+    - ./env:/usr/app/env

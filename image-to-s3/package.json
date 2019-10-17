@@ -1,0 +1,28 @@
+{
+  "name": "nodejs-solace-image-to-s3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src -d dist --presets @babel/preset-env --source-maps",
+    "dev": "npx babel-node --presets @babel/preset-env src/App.js",
+    "start": "node dist/App.js"
+  },
+  "author": "Andrew Roberts",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.495.0",
+    "axios": "^0.19.0",
+    "core-js": "^3.1.4",
+    "dotenv": "^8.0.0",
+    "regenerator-runtime": "^0.13.2",
+    "solclientjs": "^10.3.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.0",
+    "@babel/preset-env": "^7.5.4"
+  }
+}
